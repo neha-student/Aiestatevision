@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Loader2, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_BASE_URL } from '../config';
 
 export default function ChatPanel({ setHouseData }: { setHouseData: (data: any) => void }) {
   const [messages, setMessages] = useState<{role: string, content: string}[]>([
@@ -27,7 +28,7 @@ export default function ChatPanel({ setHouseData }: { setHouseData: (data: any) 
     // Check backend AI engine availability & settings on component mount
     const fetchAIStatus = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/ai/status');
+        const res = await fetch(`${API_BASE_URL}/api/ai/status`);
         if (res.ok) {
           const data = await res.json();
           setAiStatus(data);
@@ -66,7 +67,7 @@ export default function ChatPanel({ setHouseData }: { setHouseData: (data: any) 
         headers['x-grok-api-key'] = grokApiKey.trim();
       }
 
-      const response = await fetch('http://localhost:5000/api/ai/chat', {
+      const response = await fetch(`${API_BASE_URL}/api/ai/chat`, {
         method: 'POST',
         headers,
         credentials: 'include',

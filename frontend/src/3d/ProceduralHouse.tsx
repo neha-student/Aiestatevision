@@ -1,6 +1,5 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, ContactShadows, Environment } from '@react-three/drei';
-import { useMemo } from 'react';
 
 // ─── Constants ──────────────────────────────────────────────
 const WALL_H = 1.8;        // Wall height (short for dollhouse look)
@@ -97,7 +96,7 @@ function KitchenFurniture({ w, d }: { w: number; d: number }) {
   );
 }
 
-function DiningFurniture({ w, d }: { w: number; d: number }) {
+function DiningFurniture({ w: _w, d: _d }: { w: number; d: number }) {
   return (
     <group position={[0, FLOOR_T / 2, 0]}>
       {/* Table */}

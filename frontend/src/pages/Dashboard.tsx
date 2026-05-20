@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Upload, ChevronRight, Download, LogOut, Image, Sliders } from 'lucide-react';
 import ChatPanel from '../chatbot/ChatPanel';
+import { API_BASE_URL } from '../config';
 import ProceduralHouse from '../3d/ProceduralHouse';
 
 export default function Dashboard() {
@@ -12,7 +13,7 @@ export default function Dashboard() {
   const [style, setStyle] = useState('modern');
   const [customInstructions, setCustomInstructions] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [_uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [upgradeResult, setUpgradeResult] = useState<string | null>(null);
 
   // Ollama Model State
@@ -53,7 +54,7 @@ export default function Dashboard() {
       formData.append('image', selectedFile);
 
       // 1. Upload file
-      const uploadRes = await fetch('http://localhost:5000/api/upload', {
+      const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
         credentials: 'include',
         body: formData,
@@ -74,7 +75,7 @@ export default function Dashboard() {
       }
 
       // 2. Query design generation based on selected style and instructions
-      const designRes = await fetch('http://localhost:5000/api/ai/chat', {
+      const designRes = await fetch(`${API_BASE_URL}/api/ai/chat`, {
         method: 'POST',
         headers,
         credentials: 'include',
@@ -108,7 +109,7 @@ export default function Dashboard() {
     const toastId = toast.loading(`Pulling "${modelToPull}" from Ollama...`);
 
     try {
-      const res = await fetch('http://localhost:5000/api/ai/pull', {
+      const res = await fetch(`${API_BASE_URL}/api/ai/pull`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

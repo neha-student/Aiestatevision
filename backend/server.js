@@ -10,9 +10,29 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS with credentials support (for HTTP cookies)
+// Enable CORS with dynamic origin support (development + VITE/Vercel URLs)
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like server-to-server or mobile apps)
+    if (!origin) return callback(null, true);
+    
+    // Allow explicit domains or any localhost/Vercel preview URL dynamically
+    if (
+      allowedOrigins.indexOf(origin) !== -1 || 
+      origin.includes('localhost') || 
+      origin.endsWith('.vercel.app') ||
+      process.env.NODE_ENV !== 'production'
+    ) {
+      return callback(null, true);
+    }
+    
+    return callback(new Error('CORS blocked by AI Estate Vision security policy.'), false);
+  },
   credentials: true
 }));
 

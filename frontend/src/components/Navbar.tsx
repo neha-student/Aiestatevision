@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { UserCircle, Moon } from 'lucide-react';
+import { Moon } from 'lucide-react';
 
 export default function Navbar() {
   return (

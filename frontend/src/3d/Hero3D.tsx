@@ -15,7 +15,7 @@ function FuturisticHouse() {
             envMapIntensity={2}
             clearcoat={1}
           />
-          <Wireframe thickness={0.03} color="#00f0ff" />
+          <Wireframe thickness={0.03} stroke="#00f0ff" />
         </mesh>
         
         {/* Floating roof element */}
