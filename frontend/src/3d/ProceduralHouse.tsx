@@ -37,11 +37,17 @@ const FURNITURE_COLORS = {
 };
 
 // ─── Small helpers ────────────────────────────────────────────
-function Box({ pos, size, color, roughness = 0.75, metalness = 0 }: any) {
+function Box({ pos, size, color, roughness = 0.75, metalness = 0, transparent = false, opacity = 1 }: any) {
   return (
     <mesh position={pos} castShadow receiveShadow>
       <boxGeometry args={size} />
-      <meshPhysicalMaterial color={color} roughness={roughness} metalness={metalness} />
+      <meshPhysicalMaterial 
+        color={color} 
+        roughness={roughness} 
+        metalness={metalness} 
+        transparent={transparent}
+        opacity={opacity}
+      />
     </mesh>
   );
 }
@@ -134,7 +140,7 @@ function BedroomFurniture({ w, d }: { w: number; d: number }) {
       <Box pos={[0, 0.65, -d * 0.28 - 1.0]} size={[1.55, 0.9, 0.1]} color={FURNITURE_COLORS.bed} />
       {/* Wardrobe */}
       <Box pos={[w * 0.32, 0.9, -d * 0.35]} size={[0.55, 1.8, 1.2]} color="#7a6a5a" />
-      <Box pos={[w * 0.32, 0.9, -d * 0.35]} size={[0.58, 1.82, 1.22]} color="rgba(255,255,255,0.03)" roughness={0.2} metalness={0.3} />
+      <Box pos={[w * 0.32, 0.9, -d * 0.35]} size={[0.58, 1.82, 1.22]} color="#ffffff" transparent={true} opacity={0.03} roughness={0.2} metalness={0.3} />
       {/* Desk */}
       <Box pos={[-w * 0.3, 0.38, d * 0.3]} size={[0.8, 0.06, 0.5]} color="#9a8a70" roughness={0.4} />
       <Box pos={[-w * 0.3, 0.18, d * 0.3]} size={[0.72, 0.36, 0.44]} color="#9a8a70" />
@@ -295,7 +301,7 @@ export default function ProceduralHouse({ houseData }: { houseData: any }) {
         Drag to rotate · Scroll to zoom
       </div>
 
-      <Canvas shadows camera={{ position: [18, 20, 18], fov: 42 }}>
+      <Canvas shadows="percentage" camera={{ position: [18, 20, 18], fov: 42 }}>
         <color attach="background" args={['#07080f']} />
 
         {/* Lights */}
@@ -344,3 +350,4 @@ export default function ProceduralHouse({ houseData }: { houseData: any }) {
     </div>
   );
 }
+

@@ -125,7 +125,7 @@ export default function Dashboard() {
       setImageLoading(true);
       
       const referenceClause = publicImageUrl 
-        ? `based on the original room structure, door, layout, and perspective shown in this reference image: ${publicImageUrl}`
+        ? 'preserving the original room layout, camera perspective, wall dimensions, door and window placements exactly'
         : 'based on a standard room structure';
       
       const promptText = `A premium, photorealistic, architectural digest style 8k interior design render of a fully redesigned and renovated room, ${referenceClause}. Style: ${style} aesthetic. Directives: ${customInstructions || 'premium materials, luxury furniture, warm ambient lighting, elegant decorations'}. Please preserve the camera angle, walls, door placement, and overall layout of the original room, but completely upgrade and modernise all elements to create a breathtaking masterpiece. Highly detailed interior.`;
@@ -329,6 +329,10 @@ export default function Dashboard() {
                           src={upgradedImageUrl}
                           alt="AI Upgraded Room design"
                           onLoad={() => setImageLoading(false)}
+                          onError={() => {
+                            setImageLoading(false);
+                            toast.error("Failed to render the upgraded room design from the AI service. Please try again.");
+                          }}
                           className="w-full h-full object-cover rounded-xl shadow-lg border border-white/10"
                         />
                       ) : !imageLoading ? (

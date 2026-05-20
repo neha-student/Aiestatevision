@@ -1,13 +1,16 @@
+import { useMemo } from 'react';
+import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Wireframe, Environment, Float, MeshDistortMaterial } from '@react-three/drei';
 
 function FuturisticHouse() {
+  const geom = useMemo(() => new THREE.BoxGeometry(3, 2, 3).toNonIndexed(), []);
+
   return (
     <Float speed={2} rotationIntensity={0.5} floatIntensity={2}>
       <group>
         {/* Core structure */}
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[3, 2, 3]} />
+        <mesh position={[0, 0, 0]} geometry={geom}>
           <meshPhysicalMaterial 
             color="#0a0a0a" 
             metalness={0.9} 
@@ -49,7 +52,6 @@ function FuturisticHouse() {
 export default function Hero3D() {
   return (
     <Canvas camera={{ position: [5, 5, 5], fov: 45 }}>
-      <color attach="background" args={['transparent']} />
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} color="#00f0ff" />
       <directionalLight position={[-10, 10, -5]} intensity={1} color="#9d4edd" />
