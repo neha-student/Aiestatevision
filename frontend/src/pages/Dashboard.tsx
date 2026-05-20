@@ -58,19 +58,25 @@ export default function Dashboard() {
       const formData = new FormData();
       formData.append('image', selectedFile);
 
-      // 1. Upload to local API
-      const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
+      // 1. Upload to local API (optional fallback, non-blocking on EROFS / Vercel serverless)
+      let localUploadedUrl = '';
+      try {
+        const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
 
-      const uploadData = await uploadRes.json();
-      if (!uploadRes.ok) {
-        throw new Error(uploadData.message || 'Upload failed');
+        const uploadData = await uploadRes.json();
+        if (uploadRes.ok) {
+          localUploadedUrl = uploadData.url;
+          setUploadedImageUrl(uploadData.url);
+        } else {
+          console.warn('Local API upload failed, continuing with public upload:', uploadData.message);
+        }
+      } catch (err) {
+        console.warn('Local API upload error, continuing with public upload:', err);
       }
-
-      setUploadedImageUrl(uploadData.url);
       
       // 1b. Upload to public tmpfiles.org bridge to get a direct URL for Pollinations.ai (since localhost isn't reachable externally)
       let publicImageUrl = '';
@@ -92,7 +98,12 @@ export default function Dashboard() {
           }
         }
       } catch (err) {
-        console.warn('Failed to upload to public tmpfiles bridge, falling back to text-only description:', err);
+        console.warn('Failed to upload to public tmpfiles bridge:', err);
+      }
+
+      // Check if both uploads failed and we have no image reference at all
+      if (!publicImageUrl && !localUploadedUrl) {
+        throw new Error('Could not upload image to any service. Please check your network connection.');
       }
 
       toast.loading('Analyzing room structure & generating upgrade...', { id: toastId });
