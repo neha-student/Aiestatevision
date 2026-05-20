@@ -58,7 +58,7 @@ export default function Dashboard() {
       const formData = new FormData();
       formData.append('image', selectedFile);
 
-      // 1. Upload file
+      // 1. Upload to local API
       const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
         credentials: 'include',
@@ -71,6 +71,30 @@ export default function Dashboard() {
       }
 
       setUploadedImageUrl(uploadData.url);
+      
+      // 1b. Upload to public tmpfiles.org bridge to get a direct URL for Pollinations.ai (since localhost isn't reachable externally)
+      let publicImageUrl = '';
+      try {
+        const publicFormData = new FormData();
+        publicFormData.append('file', selectedFile);
+        
+        const publicUploadRes = await fetch('https://tmpfiles.org/api/v1/upload', {
+          method: 'POST',
+          body: publicFormData,
+        });
+        
+        if (publicUploadRes.ok) {
+          const publicUploadData = await publicUploadRes.json();
+          if (publicUploadData.status === 'success' && publicUploadData.data?.url) {
+            // Replace with direct download link format: https://tmpfiles.org/dl/{id}/{filename}
+            publicImageUrl = publicUploadData.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+            console.log('Public image URL generated for Pollinations:', publicImageUrl);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to upload to public tmpfiles bridge, falling back to text-only description:', err);
+      }
+
       toast.loading('Analyzing room structure & generating upgrade...', { id: toastId });
 
       const grokApiKey = localStorage.getItem('grok_api_key') || '';
@@ -97,9 +121,15 @@ export default function Dashboard() {
 
       setUpgradeResult(designData.response || 'Upgrade completed successfully!');
       
-      // 3. Generate high-fidelity upgraded design image using Pollinations.ai
+      // 3. Generate high-fidelity upgraded design image using Pollinations.ai with the Flux model
       setImageLoading(true);
-      const promptText = `A premium, photorealistic, architectural digest style 8k interior design render showing an upgraded ${style} style room. Directives: ${customInstructions || 'Make it look professional, warm, and highly elegant'}. High-resolution, photorealistic, elegant decoration, warm ambient lighting, highly detailed interior.`;
+      
+      const referenceClause = publicImageUrl 
+        ? `based on the original room structure, door, layout, and perspective shown in this reference image: ${publicImageUrl}`
+        : 'based on a standard room structure';
+      
+      const promptText = `A premium, photorealistic, architectural digest style 8k interior design render of a fully redesigned and renovated room, ${referenceClause}. Style: ${style} aesthetic. Directives: ${customInstructions || 'premium materials, luxury furniture, warm ambient lighting, elegant decorations'}. Please preserve the camera angle, walls, door placement, and overall layout of the original room, but completely upgrade and modernise all elements to create a breathtaking masterpiece. Highly detailed interior.`;
+      
       const generatedUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=1024&height=768&nologo=true&enhance=true&seed=${Math.floor(Math.random() * 1000000)}`;
       setUpgradedImageUrl(generatedUrl);
       
